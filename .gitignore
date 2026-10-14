@@ -1,0 +1,17 @@
+# Build artifacts and firmware binaries.
+# Keep the released firmware, ignore anything else generated locally.
+*.bin
+!firmware/*.bin
+build/
+managed_components/
+dependencies.lock
+sdkconfig
+sdkconfig.old
+*.elf
+*.map
+
+# OS / editor noise
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/

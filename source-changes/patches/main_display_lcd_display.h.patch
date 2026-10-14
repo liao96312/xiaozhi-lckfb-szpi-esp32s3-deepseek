@@ -1,0 +1,12 @@
+--- a/main/display/lcd_display.h
++++ b/main/display/lcd_display.h
+@@ -36,6 +36,9 @@
+     void InitializeLcdThemes();
+     virtual bool Lock(int timeout_ms = 0) override;
+     virtual void Unlock() override;
++
++    // Show the DeepSeek whale as the centered boot/assistant logo.
++    void ShowDeepSeekLogo();
+ 
+ protected:
+     // Add protected constructor
