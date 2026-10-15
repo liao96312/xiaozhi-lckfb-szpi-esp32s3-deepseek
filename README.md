@@ -1,5 +1,11 @@
 # 小智 AI 固件 — 立创·实战派 S3（DeepSeek 定制版）
 
+[![GitHub stars](https://img.shields.io/github/stars/liao96312/xiaozhi-lckfb-szpi-esp32s3-deepseek?style=flat-square)](https://github.com/liao96312/xiaozhi-lckfb-szpi-esp32s3-deepseek/stargazers)
+[![GitHub last commit](https://img.shields.io/github/last-commit/liao96312/xiaozhi-lckfb-szpi-esp32s3-deepseek?style=flat-square)](https://github.com/liao96312/xiaozhi-lckfb-szpi-esp32s3-deepseek/commits/main)
+[![ESP32-S3](https://img.shields.io/badge/ESP32--S3-LCKFB%20SZPI-E7352C?style=flat-square)](https://github.com/liao96312/xiaozhi-lckfb-szpi-esp32s3-deepseek)
+[![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v6.1-E7352C?style=flat-square)](https://github.com/espressif/esp-idf)
+[![License](https://img.shields.io/badge/license-MIT-2ea44f?style=flat-square)](https://github.com/78/xiaozhi-esp32/blob/main/LICENSE)
+
 基于 [78/xiaozhi-esp32](https://github.com/78/xiaozhi-esp32) v2.5.2 构建的 ESP32-S3 语音助手固件，
 针对 **立创·实战派 S3 开发板（LCKFB SZPI ESP32-S3）** 定制：
 
@@ -122,7 +128,7 @@ WakeNet 只能识别固定词，**无法自定义**，所以改用 ESP-SR 的 **
 
 ### 图标：鲸鱼娘状态动画
 
-主页使用基于 `Desktop/1.png` 统一角色制作的透明背景 GIF，资源位于 `assets/state_gifs/`：
+主页使用基于 `Desktop/1.png` 统一角色制作的透明背景 GIF，资源位于 [`assets/state_gifs/`](assets/state_gifs/)：
 
 - `idle.gif`：待机
 - `happy.gif`：开心
@@ -133,6 +139,18 @@ WakeNet 只能识别固定词，**无法自定义**，所以改用 ESP-SR 的 **
 `LcdDisplay::SetEmotion()` 将服务器情绪映射到对应 GIF；设备状态切换时，应用层会主动选择聆听、思考和说话动画，不再显示默认笑脸。
 
 GIF 已预生成并随仓库发布；编译时由 `main/display/whale_girl_state_gifs.c` 内嵌 GIF 数据，背景透明且不依赖运行时文件。
+
+#### 动画素材预览
+
+| 待机 | 开心 | 聆听 |
+|---|---|---|
+| <img src="assets/state_gifs/idle.gif" width="220" alt="待机动画"> | <img src="assets/state_gifs/happy.gif" width="220" alt="开心动画"> | <img src="assets/state_gifs/listening.gif" width="220" alt="聆听动画"> |
+
+| 思考 | 说话 |
+|---|---|
+| <img src="assets/state_gifs/thinking.gif" width="220" alt="思考动画"> | <img src="assets/state_gifs/speaking.gif" width="220" alt="说话动画"> |
+
+单独下载：[`idle.gif`](assets/state_gifs/idle.gif) · [`happy.gif`](assets/state_gifs/happy.gif) · [`listening.gif`](assets/state_gifs/listening.gif) · [`thinking.gif`](assets/state_gifs/thinking.gif) · [`speaking.gif`](assets/state_gifs/speaking.gif)
 
 ---
 
