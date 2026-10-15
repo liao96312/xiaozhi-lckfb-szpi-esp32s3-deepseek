@@ -1,12 +1,12 @@
 diff --git a/main/CMakeLists.txt b/main/CMakeLists.txt
-index 633ef85..64a12b7 100644
+index 633ef85..d685553 100644
 --- a/main/CMakeLists.txt
 +++ b/main/CMakeLists.txt
 @@ -17,6 +17,7 @@ set(SOURCES "audio/audio_codec.cc"
              "display/display.cc"
              "display/text_glyph.cc"
              "display/lcd_display.cc"
-+            "display/deepseek_whale_gif.c"
++            "display/whale_girl_state_gifs.c"
              "display/oled_display.cc"
              "display/lvgl_display/lvgl_display.cc"
              "display/emote_display.cc"

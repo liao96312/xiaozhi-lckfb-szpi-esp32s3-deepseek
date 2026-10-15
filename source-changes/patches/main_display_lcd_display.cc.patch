@@ -1,21 +1,25 @@
 diff --git a/main/display/lcd_display.cc b/main/display/lcd_display.cc
-index 3462ac0..904e571 100644
+index 3462ac0..a8f74ec 100644
 --- a/main/display/lcd_display.cc
 +++ b/main/display/lcd_display.cc
-@@ -25,6 +25,45 @@ LV_FONT_DECLARE(BUILTIN_ICON_FONT);
+@@ -25,6 +25,50 @@ LV_FONT_DECLARE(BUILTIN_ICON_FONT);
  LV_FONT_DECLARE(font_material_symbols_30_4);
  LV_FONT_DECLARE(font_noto_emoji_30_4);
  
-+// Animated whale-girl mascot generated as a GIF for the fixed home screen logo.
-+extern const lv_img_dsc_t deepseek_whale_gif;
++// State-specific whale-girl GIFs generated from one consistent reference character.
++extern const lv_img_dsc_t whale_girl_idle_gif;
++extern const lv_img_dsc_t whale_girl_happy_gif;
++extern const lv_img_dsc_t whale_girl_listening_gif;
++extern const lv_img_dsc_t whale_girl_thinking_gif;
++extern const lv_img_dsc_t whale_girl_speaking_gif;
 +
-+void LcdDisplay::ShowDeepSeekLogo() {
-+    if (emoji_image_ == nullptr) {
++void LcdDisplay::ShowDeepSeekLogo(const lv_img_dsc_t* mascot_gif) {
++    if (emoji_image_ == nullptr || mascot_gif == nullptr) {
 +        return;
 +    }
 +
 +    DisplayLockGuard lock(this);
-+    if (gif_controller_ && gif_controller_->IsPlaying()) {
++    if (gif_controller_ && gif_controller_->IsPlaying() && active_mascot_gif_ == mascot_gif) {
 +        lv_obj_remove_flag(emoji_image_, LV_OBJ_FLAG_HIDDEN);
 +        if (emoji_label_ != nullptr) {
 +            lv_obj_add_flag(emoji_label_, LV_OBJ_FLAG_HIDDEN);
@@ -27,11 +31,12 @@ index 3462ac0..904e571 100644
 +        gif_controller_->Stop();
 +        gif_controller_.reset();
 +    }
-+
-+    gif_controller_ = std::make_unique<LvglGif>(&deepseek_whale_gif);
++    active_mascot_gif_ = mascot_gif;
++    gif_controller_ = std::make_unique<LvglGif>(mascot_gif);
 +    if (!gif_controller_->IsLoaded()) {
 +        ESP_LOGE(TAG, "Failed to load whale-girl mascot GIF");
 +        gif_controller_.reset();
++        active_mascot_gif_ = nullptr;
 +        return;
 +    }
 +
@@ -48,17 +53,17 @@ index 3462ac0..904e571 100644
  void LcdDisplay::InitializeLcdThemes() {
      auto text_font = std::make_shared<LvglBuiltInFont>(&BUILTIN_TEXT_FONT);
      auto icon_font = std::make_shared<LvglBuiltInFont>(&BUILTIN_ICON_FONT);
-@@ -533,6 +572,9 @@ void LcdDisplay::SetupUI() {
+@@ -533,6 +577,9 @@ void LcdDisplay::SetupUI() {
      lv_obj_set_style_text_font(emoji_label_, large_icon_font, 0);
      lv_obj_set_style_text_color(emoji_label_, lvgl_theme->text_color(), 0);
      lv_label_set_text(emoji_label_, MATERIAL_SYMBOLS_ROBOT_2);
 +
-+    // Show the DeepSeek whale instead of the default robot glyph.
-+    ShowDeepSeekLogo();
++    // Show the idle whale-girl mascot instead of the default robot glyph.
++    ShowDeepSeekLogo(&whale_girl_idle_gif);
  }
  #if CONFIG_IDF_TARGET_ESP32P4
  #define MAX_MESSAGES 40
-@@ -843,10 +885,8 @@ void LcdDisplay::ClearChatMessages() {
+@@ -843,10 +890,8 @@ void LcdDisplay::ClearChatMessages() {
      // Reset chat_message_label_ as it has been deleted
      chat_message_label_ = nullptr;
  
@@ -66,33 +71,33 @@ index 3462ac0..904e571 100644
 -    if (emoji_label_ != nullptr) {
 -        lv_obj_remove_flag(emoji_label_, LV_OBJ_FLAG_HIDDEN);
 -    }
-+    // Show the centered AI logo (the DeepSeek whale) again
-+    ShowDeepSeekLogo();
++    // Show the idle whale-girl mascot again
++    ShowDeepSeekLogo(&whale_girl_idle_gif);
  
      ESP_LOGI(TAG, "Chat messages cleared");
  }
-@@ -896,6 +936,9 @@ void LcdDisplay::SetupUI() {
+@@ -896,6 +941,9 @@ void LcdDisplay::SetupUI() {
      lv_obj_center(emoji_image_);
      lv_obj_add_flag(emoji_image_, LV_OBJ_FLAG_HIDDEN);
  
-+    // Show the DeepSeek whale instead of the default robot glyph.
-+    ShowDeepSeekLogo();
++    // Show the idle whale-girl mascot instead of the default robot glyph.
++    ShowDeepSeekLogo(&whale_girl_idle_gif);
 +
      /* Middle layer: preview_image_ - centered display */
      preview_image_ = lv_image_create(screen);
      lv_obj_set_size(preview_image_, width_ / 2, height_ / 2);
-@@ -1137,84 +1180,16 @@ void LcdDisplay::SetEmotion(const char* emotion) {
+@@ -1136,85 +1184,27 @@ void LcdDisplay::SetEmotion(const char* emotion) {
+     }
      if (emoji_image_ == nullptr) {
          if (setup_ui_called_) {
-             ESP_LOGW(TAG,
+-            ESP_LOGW(TAG,
 -                     "SetEmotion('%s') failed: emoji_image_ is nullptr (SetupUI() was called but "
 -                     "emoji image not created)",
-+                     "SetEmotion('%s') failed: emoji image is not initialized",
-                      emotion);
-         }
-         return;
-     }
- 
+-                     emotion);
+-        }
+-        return;
+-    }
+-
 -    auto emoji_collection = static_cast<LvglTheme*>(current_theme_)->emoji_collection();
 -    auto image = emoji_collection != nullptr ? emoji_collection->GetEmojiImage(emotion) : nullptr;
 -    if (image == nullptr) {
@@ -113,10 +118,11 @@ index 3462ac0..904e571 100644
 -            lv_label_set_text(emoji_label_, utf8);
 -            lv_obj_add_flag(emoji_image_, LV_OBJ_FLAG_HIDDEN);
 -            lv_obj_remove_flag(emoji_label_, LV_OBJ_FLAG_HIDDEN);
--        }
--        return;
--    }
--
++            ESP_LOGW(TAG, "SetEmotion('%s') failed: emoji image is not initialized", emotion);
+         }
+         return;
+     }
+ 
 -    DisplayLockGuard lock(this);
 -    // Stop any running GIF animation in the same lock scope as setting new image
 -    // to prevent LVGL from accessing freed image data between operations
@@ -158,16 +164,26 @@ index 3462ac0..904e571 100644
 -        if (gif_controller_) {
 -            gif_controller_->Stop();
 -            gif_controller_.reset();
--        }
++    const lv_img_dsc_t* mascot = &whale_girl_idle_gif;
++    if (emotion != nullptr) {
++        if (strcmp(emotion, "listening") == 0) {
++            mascot = &whale_girl_listening_gif;
++        } else if (strcmp(emotion, "thinking") == 0 || strcmp(emotion, "connecting") == 0 ||
++                   strcmp(emotion, "confused") == 0) {
++            mascot = &whale_girl_thinking_gif;
++        } else if (strcmp(emotion, "speaking") == 0 || strcmp(emotion, "talking") == 0) {
++            mascot = &whale_girl_speaking_gif;
++        } else if (strcmp(emotion, "happy") == 0 || strcmp(emotion, "laughing") == 0 ||
++                   strcmp(emotion, "funny") == 0 || strcmp(emotion, "loving") == 0 ||
++                   strcmp(emotion, "confident") == 0) {
++            mascot = &whale_girl_happy_gif;
+         }
 -
 -        lv_obj_add_flag(emoji_image_, LV_OBJ_FLAG_HIDDEN);
 -        lv_obj_add_flag(emoji_label_, LV_OBJ_FLAG_HIDDEN);
--    }
+     }
 -#endif
-+    // Keep the whale-girl mascot fixed on the home screen. The firmware still
-+    // uses CONFIG_CUSTOM_WAKE_WORD for voice recognition; server emotion events
-+    // must not replace the mascot with the stock smiley icon.
-+    ShowDeepSeekLogo();
++    ShowDeepSeekLogo(mascot);
  }
  
  void LcdDisplay::SetTheme(Theme* theme) {

@@ -1,0 +1,35 @@
+diff --git a/main/application.cc b/main/application.cc
+index 31de205..4826c5b 100644
+--- a/main/application.cc
++++ b/main/application.cc
+@@ -1021,12 +1021,12 @@ void Application::HandleStateChangedEvent() {
+             break;
+         case kDeviceStateConnecting:
+             display->SetStatus(Lang::Strings::CONNECTING);
+-            display->SetEmotion("neutral");
++            display->SetEmotion("thinking");
+             display->SetChatMessage("system", "");
+             break;
+         case kDeviceStateListening:
+             display->SetStatus(Lang::Strings::LISTENING);
+-            display->SetEmotion("neutral");
++            display->SetEmotion("listening");
+ 
+             // Make sure the audio processor is running
+             if (play_popup_on_listening_ || !audio_service_.IsAudioProcessorRunning()) {
+@@ -1045,6 +1045,7 @@ void Application::HandleStateChangedEvent() {
+             break;
+         case kDeviceStateSpeaking:
+             display->SetStatus(Lang::Strings::SPEAKING);
++            display->SetEmotion("speaking");
+ 
+             if (listening_mode_ != kListeningModeRealtime) {
+                 audio_service_.EnableVoiceProcessing(false);
+@@ -1055,6 +1056,7 @@ void Application::HandleStateChangedEvent() {
+             break;
+         case kDeviceStateNotifying:
+             display->SetStatus(Lang::Strings::SPEAKING);
++            display->SetEmotion("speaking");
+             audio_service_.EnableVoiceProcessing(false);
+             audio_service_.EnableWakeWordDetection(audio_service_.IsAfeWakeWord());
+             break;

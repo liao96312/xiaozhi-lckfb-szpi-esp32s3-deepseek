@@ -27,6 +27,7 @@ protected:
     lv_obj_t* emoji_label_ = nullptr;
     lv_obj_t* emoji_image_ = nullptr;
     std::unique_ptr<LvglGif> gif_controller_ = nullptr;
+    const lv_img_dsc_t* active_mascot_gif_ = nullptr;
     lv_obj_t* emoji_box_ = nullptr;
     lv_obj_t* chat_message_label_ = nullptr;
     esp_timer_handle_t preview_timer_ = nullptr;
@@ -38,7 +39,7 @@ protected:
     virtual void Unlock() override;
 
     // Show the animated whale-girl mascot as the fixed centered assistant logo.
-    void ShowDeepSeekLogo();
+    void ShowDeepSeekLogo(const lv_img_dsc_t* mascot_gif);
 
 protected:
     // Add protected constructor

@@ -6,7 +6,7 @@
 | 定制项 | 内容 |
 |---|---|
 | 唤醒词 | **大肥鱼**（拼音 `da fei yu`，离线 MultiNet7 识别） |
-| 开机/主页图标 | **鲸鱼娘三帧循环 GIF** |
+| 开机/主页图标 | **鲸鱼娘透明背景状态 GIF**（待机 / 开心 / 聆听 / 思考 / 说话） |
 | 开发板 | `lckfb/szpi-esp32s3`（构建名 `lckfb-lichuang-dev`） |
 | 目标芯片 | ESP32-S3 / 16MB Flash / 8MB assets 分区 |
 | IDF 版本 | ESP-IDF v6.1 |
@@ -24,7 +24,8 @@
 最简单的办法是烧 `merged-binary`（一个文件包含所有分区）：
 
 ```bash
-esptool --chip esp32s3 -b 460800 --before default-reset --after hard-reset \
+cd firmware
+esptool --chip esp32s3 -p COM3 -b 460800 --before default-reset --after hard-reset \
   write-flash 0x0 xiaozhi-lckfb-szpi-esp32s3-merged.bin
 ```
 
@@ -119,23 +120,19 @@ WakeNet 只能识别固定词，**无法自定义**，所以改用 ESP-SR 的 **
 - `THRESHOLD` 越小越灵敏（1–99，默认 20）。误唤醒多就调大，喊不动就调小。
 - 必须**关闭** AFE/ESP WakeNet，否则两者会冲突。
 
-### 图标：DeepSeek 鲸鱼
+### 图标：鲸鱼娘状态动画
 
-1. 官方鲸鱼 logo → 去白底转透明 → 裁边
-2. 用仓库自带的 `scripts/Image_Converter/LVGLImage.py` 转成 LVGL `RGB565A8` 资源
-   （140×103，约 43KB），生成 `main/display/deepseek_whale.c`
-3. 在 `LcdDisplay` 里加 `ShowDeepSeekLogo()`，加载 `assets/whale_girl.gif` 的三帧循环动画。
-4. `SetEmotion()` 不再让服务器下发的笑脸覆盖主页吉祥物，主页固定显示鲸鱼娘。
+主页使用基于 `Desktop/1.png` 统一角色制作的透明背景 GIF，资源位于 `assets/state_gifs/`：
 
-重新生成资源：
+- `idle.gif`：待机
+- `happy.gif`：开心
+- `listening.gif`：聆听
+- `thinking.gif`：思考 / 连接中
+- `speaking.gif`：说话 / 播报
 
-```powershell
-python scripts/make-whale-gif.py
-```
+`LcdDisplay::SetEmotion()` 将服务器情绪映射到对应 GIF；设备状态切换时，应用层会主动选择聆听、思考和说话动画，不再显示默认笑脸。
 
-资源源图位于 `assets/generated/`，GIF 会被转换成 `main/display/deepseek_whale_gif.c` 并随固件编译。
-
-原始 PNG 见 `assets/deepseek_whale_rgba.png`。
+GIF 已预生成并随仓库发布；编译时由 `main/display/whale_girl_state_gifs.c` 内嵌 GIF 数据，背景透明且不依赖运行时文件。
 
 ---
 
