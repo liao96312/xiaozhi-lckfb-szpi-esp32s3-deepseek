@@ -1,12 +1,14 @@
+diff --git a/main/display/lcd_display.h b/main/display/lcd_display.h
+index 9f963e9..7add164 100644
 --- a/main/display/lcd_display.h
 +++ b/main/display/lcd_display.h
-@@ -36,6 +36,9 @@
-     void InitializeLcdThemes();
+@@ -37,6 +37,9 @@ protected:
      virtual bool Lock(int timeout_ms = 0) override;
      virtual void Unlock() override;
-+
-+    // Show the DeepSeek whale as the centered boot/assistant logo.
-+    void ShowDeepSeekLogo();
  
++    // Show the animated whale-girl mascot as the fixed centered assistant logo.
++    void ShowDeepSeekLogo();
++
  protected:
      // Add protected constructor
+     LcdDisplay(esp_lcd_panel_io_handle_t panel_io, esp_lcd_panel_handle_t panel, int width,

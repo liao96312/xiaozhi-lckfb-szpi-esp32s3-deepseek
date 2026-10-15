@@ -6,7 +6,7 @@
 | 定制项 | 内容 |
 |---|---|
 | 唤醒词 | **大肥鱼**（拼音 `da fei yu`，离线 MultiNet7 识别） |
-| 开机图标 | **DeepSeek 鲸鱼** |
+| 开机/主页图标 | **鲸鱼娘三帧循环 GIF** |
 | 开发板 | `lckfb/szpi-esp32s3`（构建名 `lckfb-lichuang-dev`） |
 | 目标芯片 | ESP32-S3 / 16MB Flash / 8MB assets 分区 |
 | IDF 版本 | ESP-IDF v6.1 |
@@ -124,10 +124,16 @@ WakeNet 只能识别固定词，**无法自定义**，所以改用 ESP-SR 的 **
 1. 官方鲸鱼 logo → 去白底转透明 → 裁边
 2. 用仓库自带的 `scripts/Image_Converter/LVGLImage.py` 转成 LVGL `RGB565A8` 资源
    （140×103，约 43KB），生成 `main/display/deepseek_whale.c`
-3. 在 `LcdDisplay` 里加 `ShowDeepSeekLogo()`，在以下时机显示：
-   - `SetupUI()` 建好控件后（开机 Logo）
-   - `SetEmotion("robot_2")` 时（启动时 `application.cc` 会调一次，不映射的话会把 Logo 冲掉）
-   - `ClearChatMessages()` 时（回到待机）
+3. 在 `LcdDisplay` 里加 `ShowDeepSeekLogo()`，加载 `assets/whale_girl.gif` 的三帧循环动画。
+4. `SetEmotion()` 不再让服务器下发的笑脸覆盖主页吉祥物，主页固定显示鲸鱼娘。
+
+重新生成资源：
+
+```powershell
+python scripts/make-whale-gif.py
+```
+
+资源源图位于 `assets/generated/`，GIF 会被转换成 `main/display/deepseek_whale_gif.c` 并随固件编译。
 
 原始 PNG 见 `assets/deepseek_whale_rgba.png`。
 

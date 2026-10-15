@@ -37,7 +37,7 @@ protected:
     virtual bool Lock(int timeout_ms = 0) override;
     virtual void Unlock() override;
 
-    // Show the DeepSeek whale as the centered boot/assistant logo.
+    // Show the animated whale-girl mascot as the fixed centered assistant logo.
     void ShowDeepSeekLogo();
 
 protected:

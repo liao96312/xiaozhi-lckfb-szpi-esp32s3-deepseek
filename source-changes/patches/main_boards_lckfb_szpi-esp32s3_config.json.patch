@@ -1,3 +1,5 @@
+diff --git a/main/boards/lckfb/szpi-esp32s3/config.json b/main/boards/lckfb/szpi-esp32s3/config.json
+index 3ad1c11..f3749b5 100644
 --- a/main/boards/lckfb/szpi-esp32s3/config.json
 +++ b/main/boards/lckfb/szpi-esp32s3/config.json
 @@ -6,7 +6,16 @@
