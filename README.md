@@ -6,7 +6,7 @@
 [![ESP-IDF](https://img.shields.io/badge/ESP--IDF-v6.1-E7352C?style=flat-square)](https://github.com/espressif/esp-idf)
 [![License](https://img.shields.io/badge/license-MIT-2ea44f?style=flat-square)](https://github.com/78/xiaozhi-esp32/blob/main/LICENSE)
 
-基于 [78/xiaozhi-esp32](https://github.com/78/xiaozhi-esp32) v2.5.2 构建的 ESP32-S3 语音助手固件，
+基于 [78/xiaozhi-esp32](https://github.com/78/xiaozhi-esp32) **v2.5.2**（tag `v2.5.2`）构建的 ESP32-S3 语音助手固件，
 针对 **立创·实战派 S3 开发板（LCKFB SZPI ESP32-S3）** 定制：
 
 | 定制项 | 内容 |
@@ -25,7 +25,15 @@
 
 用 **数据线**（不是只能充电的线）连接电脑，板子上电。
 
-### 2. 烧录整包固件
+### 2. 安装 esptool
+
+```bash
+pip install esptool
+```
+
+> 下文串口统一以 `COM3` 为例，请替换成你自己的串口（Windows 设备管理器里查看；Linux/macOS 一般是 `/dev/ttyUSB0`、`/dev/ttyACM0` 或 `/dev/cu.*`）。
+
+### 3. 烧录整包固件
 
 最简单的办法是烧 `merged-binary`（一个文件包含所有分区）：
 
@@ -38,14 +46,14 @@ esptool --chip esp32s3 -p COM3 -b 460800 --before default-reset --after hard-res
 或者按分区分别烧（在 `firmware/` 目录下执行）：
 
 ```bash
-esptool --chip esp32s3 -b 460800 --before default-reset --after hard-reset \
+esptool --chip esp32s3 -p COM3 -b 460800 --before default-reset --after hard-reset \
   write-flash --flash-mode dio --flash-freq 80m --flash-size 16MB "@flash_args"
 ```
 
-### 3. 查看串口日志
+### 4. 查看串口日志
 
 ```bash
-python -m serial.tools.miniterm COM7 115200
+python -m serial.tools.miniterm COM3 115200
 ```
 
 > 烧录后设备会进入配网模式（热点或 BluFi），按屏幕提示配网即可。
@@ -56,8 +64,11 @@ python -m serial.tools.miniterm COM7 115200
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass -Force
-.\scripts\flash.ps1
+.\scripts\flash.ps1                 # 自动找串口
+.\scripts\flash.ps1 -Port COM3      # 指定串口（换成你自己的）
 ```
+
+脚本默认工程目录为 `D:\xz\xiaozhi`，可用 `-ProjectDir <路径>` 或环境变量 `XIAOZHI_PROJECT_DIR` 指定。
 
 ---
 
@@ -69,14 +80,17 @@ Set-ExecutionPolicy -Scope Process Bypass -Force
 
 ```powershell
 # Windows
-.\scripts\idf-env.ps1     # 按自己的安装路径改这个文件里的 IDF_PATH
+# 默认 IDF_PATH=D:\Espressif\frameworks\esp-idf-v6.1、IDF_TOOLS_PATH=$HOME\.espressif
+# 路径不同时先设置环境变量再执行，例如：
+$env:IDF_PATH = 'D:\Espressif\frameworks\esp-idf-v6.1'
+. .\scripts\idf-env.ps1
 ```
 
 ### 2. 编译
 
 ```powershell
 Set-ExecutionPolicy -Scope Process Bypass -Force
-.\scripts\build.ps1
+.\scripts\build.ps1 -ProjectDir D:\xz\xiaozhi   # 或设置 XIAOZHI_PROJECT_DIR
 ```
 
 等价于：
@@ -96,8 +110,11 @@ python scripts/build.py lckfb/szpi-esp32s3 --name lichuang-dev
 ```bash
 git clone https://github.com/78/xiaozhi-esp32.git
 cd xiaozhi-esp32
-git apply /path/to/xiaozhi-deepseek.patch
+git checkout v2.5.2
+git apply --ignore-whitespace /path/to/xiaozhi-deepseek.patch
 ```
+
+> 补丁基于上游 tag **`v2.5.2`**（补丁中的 blob 哈希与该 tag 一致）。补丁为 CRLF 换行，直接 `git apply` 可能报错，加 `--ignore-whitespace` 即可。
 
 ---
 

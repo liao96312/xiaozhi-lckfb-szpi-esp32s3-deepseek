@@ -2,18 +2,22 @@
 #
 # Usage:
 #   Set-ExecutionPolicy -Scope Process Bypass -Force
-#   .\tools\build.ps1
+#   .\scripts\build.ps1 [-ProjectDir <path>]
 #
-# The project is built from D:\xz\xiaozhi (a short path) because the full
-# workspace path makes ninja's command lines exceed the Windows limit.
+# -ProjectDir: the patched 78/xiaozhi-esp32 checkout. Defaults to
+# $env:XIAOZHI_PROJECT_DIR, then D:\xz\xiaozhi. Keep it on a short path:
+# long paths make ninja's command lines exceed the Windows limit.
+
+param(
+    [string]$ProjectDir = $(if ($env:XIAOZHI_PROJECT_DIR) { $env:XIAOZHI_PROJECT_DIR } else { 'D:\xz\xiaozhi' })
+)
 
 $ErrorActionPreference = 'Stop'
-$ws = Split-Path -Parent $PSScriptRoot
-. "$ws\tools\idf-env.ps1"
+. (Join-Path $PSScriptRoot 'idf-env.ps1')
 
-$project = 'D:\xz\xiaozhi'
+$project = $ProjectDir
 if (-not (Test-Path $project)) {
-    throw "Project not found: $project"
+    throw "Project not found: $project`nPass -ProjectDir <path> or set XIAOZHI_PROJECT_DIR to your xiaozhi-esp32 checkout."
 }
 
 Set-Location $project
