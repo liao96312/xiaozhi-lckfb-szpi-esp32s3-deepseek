@@ -2,22 +2,23 @@
 #
 # Usage:
 #   Set-ExecutionPolicy -Scope Process Bypass -Force
-#   .\tools\flash.ps1              # auto-detect the serial port
-#   .\tools\flash.ps1 -Port COM7   # explicit port
+#   .\scripts\flash.ps1              # auto-detect the serial port
+#   .\scripts\flash.ps1 -Port COM3   # explicit port (use your own)
+#   .\scripts\flash.ps1 -ProjectDir D:\path\to\xiaozhi-esp32
 #
 # Prerequisite: the board must be connected over USB and powered on.
 
 param(
-    [string]$Port
+    [string]$Port,
+    [string]$ProjectDir = $(if ($env:XIAOZHI_PROJECT_DIR) { $env:XIAOZHI_PROJECT_DIR } else { 'D:\xz\xiaozhi' })
 )
 
 $ErrorActionPreference = 'Stop'
-$ws = Split-Path -Parent $PSScriptRoot
-. "$ws\tools\idf-env.ps1"
+. (Join-Path $PSScriptRoot 'idf-env.ps1')
 
-$project = 'D:\xz\xiaozhi'
+$project = $ProjectDir
 if (-not (Test-Path $project)) {
-    throw "Build directory not found: $project  (run tools/build.ps1 first)"
+    throw "Project not found: $project  (pass -ProjectDir or set XIAOZHI_PROJECT_DIR, and run scripts/build.ps1 first)"
 }
 
 if (-not $Port) {
